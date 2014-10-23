@@ -16,12 +16,11 @@ var expectations = map[string]string{
 }
 
 func TestUrlResolver(t *testing.T) {
+	r := NewResolver()
 	for url, expected := range expectations {
-		actual := ResolveUrl(url)
+		actual := r.ResolveUrl(url)
 		if actual != expected {
 			t.Errorf("!! %s -> %s != %s", url, actual, expected)
-		} else {
-			t.Logf("OK %s -> %s", url, actual)
 		}
 	}
 }

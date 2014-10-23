@@ -7,7 +7,14 @@ import (
 	"strings"
 )
 
-func ResolveUrl(url string) string {
+type Resolver struct {
+}
+
+func NewResolver() *Resolver {
+	return new(Resolver)
+}
+
+func (r *Resolver) ResolveUrl(url string) string {
 	u, err := URL.Parse(url)
 	if err != nil {
 		return url
@@ -16,10 +23,18 @@ func ResolveUrl(url string) string {
 	if len(components) == 1 {
 		_, srvs, err := net.LookupSRV("", "", components[0])
 		if err == nil {
-			host, port := srvs[0].Target, srvs[0].Port
-			u.Host = fmt.Sprintf("%s:%d", host[:len(host)-1], port)
+			u.Host = srvAddress(r.selectSrv(srvs))
 		}
 	}
 
 	return u.String()
+}
+
+func srvAddress(srv *net.SRV) string {
+	host, port := srv.Target, srv.Port
+	return fmt.Sprintf("%s:%d", host[:len(host)-1], port)
+}
+
+func (r *Resolver) selectSrv(srvs []*net.SRV) *net.SRV {
+	return srvs[0]
 }
